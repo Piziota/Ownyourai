@@ -11,6 +11,16 @@
 <meta property="og:title" content="Own Your AI">
 <meta property="og:description" content="An Engineering Group for Sovereign, Efficient AI. Vienna, in person only.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://ownyourai.at/">
+<meta property="og:image" content="https://ownyourai.at/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Own Your AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Own Your AI">
+<meta name="twitter:description" content="An engineering group for sovereign, efficient AI. Vienna, in person only.">
+<meta name="twitter:image" content="https://ownyourai.at/og.png">
+<link rel="canonical" href="https://ownyourai.at/">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23080808'/><text x='50' y='67' font-family='Helvetica,Arial' font-size='52' font-weight='900' fill='%23E8E8E8' text-anchor='middle'>AI</text></svg>">
 <style>
 @font-face{font-family:"Inter Tight";src:url("fonts/inter-tight.woff2") format("woff2-variations");font-weight:100 900;font-style:normal;font-display:swap}
@@ -245,6 +255,23 @@ footer .fl{display:flex;gap:24px;flex-wrap:wrap}
 footer a,footer span{font-family:var(--mono);font-size:10.5px;letter-spacing:.17em;text-transform:uppercase;color:var(--fg-dim)}
 footer a:hover{color:var(--fg)}
 
+/* archive filter */
+.filter{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:0 2px}
+.filter input{
+  flex:1;max-width:380px;background:var(--glass);border:1px solid var(--hairline);border-radius:2px;
+  padding:11px 14px;color:var(--fg);font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+}
+.filter input::placeholder{color:#555;letter-spacing:.16em;text-transform:uppercase;font-size:10.5px}
+.filter input:focus{outline:none;border-color:var(--hairline-strong);background:rgba(255,255,255,.07)}
+.filter .count{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--fg-dim)}
+.evt[hidden],.talk[hidden]{display:none}
+
+/* speak */
+.speak{padding:clamp(30px,4.6vw,46px);display:flex;gap:30px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.speak h3{font-size:clamp(20px,2.8vw,28px);font-weight:800;text-transform:uppercase;letter-spacing:-.03em;margin-bottom:10px}
+.speak p{font-size:14.5px;max-width:52ch}
+
 /* reveal */
 .rv{opacity:0;transform:translateY(16px);transition:opacity .75s cubic-bezier(.2,.7,.3,1),transform .75s cubic-bezier(.2,.7,.3,1)}
 .rv.in{opacity:1;transform:none}
@@ -368,6 +395,11 @@ footer a:hover{color:var(--fg)}
     </div>
     <p class="lead" style="margin-bottom:36px">Speaker materials are archived unchanged, with provenance, in the public repository. Nothing is rewritten.</p>
 
+    <div class="filter rv">
+      <input id="q" type="search" placeholder="Filter talks, speakers, topics" aria-label="Filter talks">
+      <span class="count" id="qc"></span>
+    </div>
+
     <details class="glass evt rv" open>
       <summary>
         <span class="date">20 Oct 2026</span>
@@ -449,6 +481,20 @@ footer a:hover{color:var(--fg)}
 
 <div class="divider"></div>
 
+<section id="speak">
+  <div class="wrap">
+    <div class="glass crop speak rv">
+      <div>
+        <h3>Have a practical story?</h3>
+        <p>Focus talks run about 30 minutes, lightning talks about 10. What works here: something you actually built and ran, including the parts that broke. What doesn't: product pitches. Bring it to the Discord and the hosts will slot you in.</p>
+      </div>
+      <a class="btn" href="https://discord.gg/J2XzvVND66" target="_blank" rel="noopener">Pitch a talk ↗</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
 <section id="hosts">
   <div class="wrap">
     <div class="sechead">
@@ -513,6 +559,40 @@ footer a:hover{color:var(--fg)}
     });
   },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
   els.forEach(function(e,i){e.style.transitionDelay=(Math.min(i,6)*55)+'ms';io.observe(e);});
+})();
+
+(function(){
+  var q=document.getElementById('q'), c=document.getElementById('qc');
+  if(!q) return;
+  var evts=[].slice.call(document.querySelectorAll('.evt'));
+  var talks=[].slice.call(document.querySelectorAll('.talk'));
+  var total=talks.length;
+  var openState=null;
+  function norm(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+  talks.forEach(function(t){t.dataset.k=norm(t.textContent);});
+  evts.forEach(function(e){e.dataset.k=norm(e.querySelector('summary').textContent);});
+  function show(n){c.textContent = n===total ? total+' talks' : n+' of '+total;}
+  show(total);
+  q.addEventListener('input',function(){
+    var v=norm(q.value.trim());
+    if(!v){
+      talks.forEach(function(t){t.hidden=false});
+      evts.forEach(function(e){e.hidden=false; if(openState) e.open=openState.indexOf(e)>-1;});
+      openState=null; show(total); return;
+    }
+    if(openState===null) openState=evts.filter(function(e){return e.open});
+    var n=0;
+    evts.forEach(function(e){
+      var rows=[].slice.call(e.querySelectorAll('.talk'));
+      var hits=rows.filter(function(t){return t.dataset.k.indexOf(v)>-1;});
+      // a query that names the event itself (date, number) reveals all of its talks
+      var byEvent = hits.length===0 && e.dataset.k.indexOf(v)>-1;
+      var shown = byEvent ? rows : hits;
+      rows.forEach(function(t){t.hidden = shown.indexOf(t)===-1;});
+      e.hidden = shown.length===0; e.open = shown.length>0; n += shown.length;
+    });
+    show(n);
+  });
 })();
 </script>
 </body>

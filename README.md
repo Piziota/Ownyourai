@@ -12,13 +12,19 @@ to nobody but the host. It renders identically from a CDN, a GitHub Pages branch
 Nginx box in Vienna, or a laptop with no network at all.
 
 ```
-index.html              markup + styles + script
-fonts/inter-tight.woff2 display face (variable, latin subset)
+index.html                  markup + styles + script
+fonts/inter-tight.woff2     display face (variable, latin subset)
 fonts/jetbrains-mono.woff2  metadata face (variable, latin subset)
-_headers                CSP and cache rules for Cloudflare Pages
+og.png                      1200x630 social preview card
+robots.txt, sitemap.xml
+_headers                    CSP and cache rules for Cloudflare Pages
 ```
 
-Total transfer: roughly 120 KB, once.
+Total transfer: roughly 165 KB, once.
+
+The archive has a client-side filter across all 23 talks — it matches titles,
+speakers, dates and event numbers, and reveals a whole event when the query names
+the event itself.
 
 ## Deploy
 
