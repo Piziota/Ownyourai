@@ -3,15 +3,28 @@
 Static site for [Own Your AI](https://github.com/Own-Your-AI/events), an engineering
 group in Vienna for sovereign, efficient AI.
 
-**One file. No build step. No external requests.**
+**No build step. No third-party requests.**
 
-`index.html` is the entire site — no fonts, images, scripts, trackers or analytics are
-fetched from anywhere. It renders identically from a CDN, a GitHub Pages branch, an
-Nginx box in Vienna, or a USB stick with no network at all.
+`index.html` carries all markup, styles and script. The only other assets are two
+self-hosted variable fonts. Nothing — no font CDN, no image host, no tracker, no
+analytics — is fetched from a third party, so visiting the site discloses the visitor
+to nobody but the host. It renders identically from a CDN, a GitHub Pages branch, an
+Nginx box in Vienna, or a laptop with no network at all.
+
+```
+index.html              markup + styles + script
+fonts/inter-tight.woff2 display face (variable, latin subset)
+fonts/jetbrains-mono.woff2  metadata face (variable, latin subset)
+_headers                CSP and cache rules for Cloudflare Pages
+```
+
+Total transfer: roughly 120 KB, once.
 
 ## Deploy
 
 **Cloudflare Pages** — connect this repo, no build command, output directory `/`.
+`_headers` is picked up automatically and applies a strict Content-Security-Policy
+(`default-src 'none'`) plus immutable caching on the fonts.
 
 **GitHub Pages** — Settings → Pages → deploy from `main` / root.
 
@@ -34,6 +47,8 @@ the cards are the logo's own motif.
 | `--fg-dim` | `#6E6E6E` |
 | `--hairline` | `rgba(255,255,255,.09)` |
 | `--glass` | `rgba(255,255,255,.045)` |
+
+Type is Inter Tight for display and JetBrains Mono for dates, labels and metadata.
 
 ## Content
 
